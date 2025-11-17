@@ -44,7 +44,7 @@ export default async function FollowPage() {
                 <Link
                   href={`/profile/${user.id}`}
                   className="text-blue-500 hover:underline px-4 py-2 border rounded-md">
-                  プロフィールへ
+                  More
                 </Link>
               </div>
             ))}
@@ -81,7 +81,7 @@ export default async function FollowPage() {
                 <Link
                   href={`/profile/${user.id}`}
                   className="text-blue-500 hover:underline px-4 py-2 border rounded-md">
-                  相手のページ
+                  More 
                 </Link>
               </div>
             ))}
