@@ -6,15 +6,14 @@ import {prisma} from "@/lib/prisma";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 
-
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
+  // if (!session) {
+  //   redirect("/login");
+  // }
 
-  const currentUserId = parseInt(session.user?.id as string);
+  const currentUserId = session?.user.id ? parseInt(session.user?.id) : null;
   //  データベースのTrendモデルから人気のお題を取得
   // seed.tsで作成したTrendモデルを利用し、出現回数（count）順に上位5件を取得します。
   const popularTopics = await prisma.trend.findMany({
@@ -33,14 +32,12 @@ export default async function HomePage() {
       author: {
         include: {
           followers: {
-            where: {
-              followerId: currentUserId,
-            },
+            // 認証されている場合のみ、フォローチェックの where 句を追加
+            where: currentUserId ? {followerId: currentUserId} : undefined,
             take: 1,
           },
         },
       },
-     
     },
     orderBy: {createdAt: "desc"},
   });
@@ -49,7 +46,15 @@ export default async function HomePage() {
     <main className="container mx-auto p-4">
       <h1 className="text-center text-2xl font-bold mb-4">X-Clone Feed</h1>
       <div className="container mx-auto   flex justify-end">
-        <LogoutButton />
+        {session ? (
+          <LogoutButton />
+        ) : (
+          <div className="mb-3 ">
+            <button className="items-center w-full p-2 rounded-md border hover:bg-red-500 transition-colors">
+              <Link href="/login">login</Link>
+            </button>
+          </div>
+        )}
       </div>
       {/* 人気のお題のリンクを動的に表示 */}
       <section className="mb-8">
@@ -72,7 +77,8 @@ export default async function HomePage() {
       <section>
         <h2 className="text-xl font-semibold mb-4">全ての投稿</h2>
         <PostList
-          posts={allPosts 
+          posts={
+            allPosts
             // as any
           }
           currentUserId={currentUserId}
@@ -82,4 +88,3 @@ export default async function HomePage() {
     </main>
   );
 }
-

@@ -17,12 +17,12 @@ type ProfilePageProps = {
 export default async function OtherProfilePage({ params }: ProfilePageProps) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  // if (!session?.user?.id) {
+  //   redirect("/login");
+  // }
 
   // 現在ログインしているユーザーのID
-  const currentUserId = parseInt(session.user.id);
+  const currentUserId =session?.user?.id ? parseInt(session.user.id)  : null;
   // URLから取得したプロフィール表示対象のユーザーID
   const targetUserId = parseInt(params.id);
 
@@ -40,12 +40,17 @@ export default async function OtherProfilePage({ params }: ProfilePageProps) {
     return <div className="p-8 max-w-2xl mx-auto text-red-500">ユーザーが見つかりませんでした。</div>;
   }
   
-  const isFollowing = await prisma.follow.findFirst({
-    where: {
-      followerId: currentUserId,
-      followingId: targetUserId,
-    },
-  });
+  let isFollowing = false;
+  if(currentUserId !== null){
+    const followRecord = await prisma.follow.findFirst({
+      where: {
+        followerId: currentUserId,
+        followingId: targetUserId,
+      },
+    });
+    isFollowing = !! followRecord;
+  }
+  
   
   const userPosts = await prisma.post.findMany({
     where: {
@@ -57,11 +62,11 @@ export default async function OtherProfilePage({ params }: ProfilePageProps) {
       author: {
         include: {
           followers: {
-            where: {
+            where: currentUserId !== null ? {
               // ログインユーザーがこのターゲットユーザーをフォローしているかチェック
               followerId: currentUserId,
               followingId: targetUserId,
-            },
+            } : undefined,
             take: 1,
           },
         },
@@ -82,28 +87,34 @@ export default async function OtherProfilePage({ params }: ProfilePageProps) {
           <h1 className="text-3xl font-bold">{targetUser.name || "名無しユーザー"}のプロフィール</h1>
           <p className="text-gray-500">{targetUser.email}</p>
         </div>
-        
-        {isOwnProfile ? (
-            // 自分のプロフィールならログアウトボタンなどを表示
-            <LogoutButton />
-        ) : (
-            // 他人のプロフィールならフォローボタンを表示
-            <form action={async () => {
-                "use server";
-                // toggleFollowを呼び出す
-                await toggleFollow(targetUserId);
-            }}>
-                <button
-                    type="submit"
-                    className={`px-4 py-2 text-sm rounded-full transition-colors font-bold ${
-                        isFollowing
-                            ? "bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-400"
-                            : "bg-blue-500 text-white hover:bg-blue-600"
-                    }`}
-                >
-                    {isFollowing ? "フォロー中" : "フォロー"}
-                </button>
-            </form>
+        {currentUserId !== null && (
+            isOwnProfile ? (
+                // 自分のプロフィールならログアウトボタンなどを表示
+                <LogoutButton />
+            ) : (
+                // 他人のプロフィールならフォロー/フォロー解除ボタンを表示
+                <form action={async () => {
+                    "use server";
+                    // toggleFollowを呼び出す
+                    await toggleFollow(targetUserId);
+                }}>
+                    <button
+                        type="submit"
+                        className={`px-4 py-2 text-sm rounded-full transition-colors font-bold ${
+                            isFollowing
+                                ? "bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-400"
+                                : "bg-blue-500 text-white hover:bg-blue-600"
+                        }`}
+                    >
+                        {isFollowing ? "フォロー中" : "フォロー"}
+                    </button>
+                </form>
+            )
+        )}
+        {currentUserId === null && (
+          <Link href="/login" className="px-4 py-2 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600 font-bold">
+          ログインしてフォロー
+      </Link>
         )}
       </div>
 
