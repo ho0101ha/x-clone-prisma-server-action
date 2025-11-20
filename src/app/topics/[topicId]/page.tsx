@@ -1,9 +1,10 @@
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/auth";
-import {redirect} from "next/navigation";
+// import {redirect} from "next/navigation";
 import PostList from "@/components/PostList";
 import {prisma} from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
+import Link from "next/link";
 
 interface TopicPageProps {
   params: {
@@ -14,15 +15,15 @@ interface TopicPageProps {
 export default async function TopicPage({params}: TopicPageProps) {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/login");
-  }
+  // if (!session) {
+  //   redirect("/login");
+  // }
 
   //  URLエンコードされた文字列をデコード
   const topic = decodeURIComponent(params.topicId);
 
 
-  const currentUserId = parseInt(session.user?.id as string);
+  const currentUserId = session?.user?.id ? parseInt(session.user?.id as string) : null;
 
   const posts = await prisma.post.findMany({
     where: {
@@ -37,9 +38,9 @@ export default async function TopicPage({params}: TopicPageProps) {
         include: {
           followers: {
             // ログインユーザーが投稿者をフォローしているかチェック
-            where: {
+            where:currentUserId !== null ? {
               followerId: currentUserId,
-            },
+            } : undefined,
             take: 1, // 存在チェックなので1つだけ取得
           },
         },
@@ -65,7 +66,11 @@ export default async function TopicPage({params}: TopicPageProps) {
   return (
     <main className="container mx-auto p-4">
       <div className="container mx-auto   flex justify-end">
-        <LogoutButton />
+        {session ? (<LogoutButton />):(
+          <Link href="/login">
+          <span className="text-blue-600 hover:underline font-bold">ログイン</span>
+      </Link>
+        )}
       </div>
       <h1 className="text-2xl font-bold mb-4">お題: #{topic} の投稿</h1>
       <section>
