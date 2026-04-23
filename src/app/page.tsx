@@ -9,10 +9,6 @@ import LogoutButton from "@/components/LogoutButton";
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
-  // if (!session) {
-  //   redirect("/login");
-  // }
-
   const currentUserId = session?.user.id ? parseInt(session.user?.id) : null;
   //  データベースのTrendモデルから人気のお題を取得
   // seed.tsで作成したTrendモデルを利用し、出現回数（count）順に上位5件を取得します。
@@ -32,7 +28,6 @@ export default async function HomePage() {
       author: {
         include: {
           followers: {
-            // 認証されている場合のみ、フォローチェックの where 句を追加
             where: currentUserId ? {followerId: currentUserId} : undefined,
             take: 1,
           },

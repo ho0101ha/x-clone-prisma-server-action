@@ -177,7 +177,7 @@ export async function toggleFollow(followingId: number) {
       },
     });
   }
-
+ console.log(existingFollow);
   revalidatePath("/");
 }
 
@@ -228,6 +228,7 @@ export async function getFollowLists() {
     // 必要なユーザー情報のみを抽出
     const followers = followersData.map((f) => f.follower);
     const following = followingData.map((f) => f.following);
+    
 
     return { followers, following, error: null };
   } catch (e) {

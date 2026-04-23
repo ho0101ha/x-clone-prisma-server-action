@@ -113,36 +113,3 @@ export default function PostList({
   );
 }
 
-//   <div>
-//     {posts.map((post) => (
-//       <div key={post.id} className="border p-4 rounded-md mb-4">
-//         <Link href={`/posts/${post.id}`}>
-//           <p className="font-semibold">{post.author.name || "Anonymous"}</p>
-//         </Link>
-//         <p className="mt-2">{post.content}</p>
-//         <div className="mt-2">
-//           <button
-//             onClick={() => handleToggleLike(post.id)}
-//             className={`p-1 rounded-full ${
-//               post.likes.some((like) => like.userId === currentUserId)
-//                 ? "text-red-500"
-//                 : "text-gray-500"
-//             }`}
-//           >
-//             ❤️ {post.likes.length}
-//           </button>
-//           {showDeleteButton && (
-//             <button
-//               onClick={() => handleDeletePost(post.id)}
-//               className="ml-4 text-red-500 hover:text-red-700"
-//             >
-//               削除
-//             </button>
-//           )}
-//         </div>
-//       </div>
-//     ))}
-//   </div>
-
-// );
-// }

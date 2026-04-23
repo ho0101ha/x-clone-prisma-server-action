@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signUp } from "@/actions/auth";
 
 export default function SignUpPage() {
+  
   // useActionState を使用してフォームの実行状態を管理
   // signUp アクションが返すオブジェクトをstateとして保持
   const [state, formAction, isPending] = useActionState(

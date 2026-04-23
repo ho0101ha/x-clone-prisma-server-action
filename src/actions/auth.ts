@@ -6,8 +6,7 @@ import bcrypt from "bcryptjs";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 /**
- * 新規ユーザーを登録します。
- * @returns 登録成功時は { success: true }、失敗時は { error: string } を返します。
+ * @returns 登録成功時は { success: true }、失敗時は { error: string } を返す。
  */
 
 export async function signUp(formData: FormData) {
